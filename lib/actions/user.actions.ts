@@ -22,11 +22,11 @@ export async function createUser(user: CreateUserParams) {
 }
 
 // READ
-export async function getUserById(userId: string) {
+export async function getUserById(userId: string | null) {
     try {
         await connectToDatabase();
 
-        const user = await User.findById({ clerkId: userId })
+        const user = await User.findOne({ clerkId: userId })
 
         if (!user) throw new Error("User not found");
 
@@ -68,6 +68,22 @@ export async function deleteUser(clerkId: string) {
 
 
         return deleteUser ? JSON.parse(JSON.stringify(deleteUser)) : null;
+    } catch (error) {
+        handleError(error)
+    }
+}
+
+// UPDATE CREDITS
+export async function updateCredits(userId: string, creditFee: number) {
+    try {
+        await connectToDatabase();
+
+        const updatedUserCredits = await User.findOneAndUpdate({ _id: userId }, { $inc: { creditBalance: creditFee } }, { new: true }
+        )
+
+        if (!updatedUserCredits) throw new Error("Error updating credits");
+
+        return JSON.parse(JSON.stringify(updatedUserCredits));
     } catch (error) {
         handleError(error)
     }
